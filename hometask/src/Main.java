@@ -1,26 +1,27 @@
-import hometask1.SnapshotStringBuilder;
+import hometask4.BlockingQueue;
 
 public class Main {
     public static void main(String[] args) {
+        final BlockingQueue<Integer> queue = new BlockingQueue<>(1000);
 
-        SnapshotStringBuilder ssb = new SnapshotStringBuilder();
-        ssb.append("Snapshot ").append("is").append(" a ");
-        System.out.println(ssb);
+        Thread producer = new Thread(() -> {
+            for (int i = 1; i <= 100000; i++) {
+                queue.enqueue(i);
+                System.out.println("Поток добавил: " + i);
 
-        ssb.snapshot();
+            }
+            System.out.println("Готово! Все числа в очереди.");
+        });
+        Thread consumer = new Thread(() -> {
+            int cur;
+            while (true) {
+                cur = queue.dequeue();
+                System.out.println("Поток считал: " + cur);
+                if (cur==100000)return;
+            }
+        });
 
-        ssb.append("bad");
-        System.out.println(ssb);
-
-        if(ssb.undo()) {
-            System.out.println(ssb);
-        }
-
-        if(ssb.undo()) {
-            System.out.println(ssb);
-        }
-        else {
-            System.out.println(ssb.append("good idea"));
-        }
+        producer.start();
+        consumer.start();
     }
 }
